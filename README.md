@@ -7,25 +7,21 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+# Laravel + React + WebSockets + RabbitMQ + Redis Image Gallery
 
-# Laravel + React + WebSockets + RabbitMQ Image Gallery
+A full-stack image gallery app built with **Laravel 10**, **React**, **WebSockets (Laravel WebSockets)**, **RabbitMQ**, and **Redis**.
 
-A full-stack image gallery app built with **Laravel 10**, **React**, **WebSockets (Laravel WebSockets)**, and **RabbitMQ**.  
-
-It allows uploading and deleting images in real time, with email notifications sent on each action.
+It allows uploading and deleting images in real time, with Redis caching and email notifications sent via RabbitMQ.
 
 ---
 
 ## 🌀 Features
 
 - ✅ Upload and display images (stored publicly)
-- 
 - ✅ Real-time updates via Laravel WebSockets
-- 
 - ✅ Asynchronous email notifications via RabbitMQ queues
-- 
+- ✅ Redis caching for faster responses and reduced DB calls
 - ✅ Built-in React frontend (Vite)
-- 
 - ✅ Works without Docker (e.g. XAMPP on Windows)
 
 ---
@@ -33,172 +29,118 @@ It allows uploading and deleting images in real time, with email notifications s
 ## 🔧 Requirements
 
 - PHP 8.1+
-- 
 - Composer
-- 
 - Node.js + npm
-- 
 - XAMPP (Apache + MySQL + RabbitMQ manually installed)
-- 
-- Laravel WebSockets + RabbitMQ (no Docker)
-- 
+- Laravel WebSockets + RabbitMQ + Redis
 - Mailtrap (or any SMTP for dev)
 
 ---
 
 ## 🚀 Clone & Setup
 
-
+```bash
 git clone https://github.com/sashokrist/Laravel-react-websockets-rabbitmq.git
-
 cd Laravel-react-websockets-rabbitmq
+```
 
-⚙️ Backend Setup (Laravel)
+### ⚙️ Backend Setup (Laravel)
 
+```bash
 composer install
-
 cp .env.example .env
-
 php artisan key:generate
+```
 
-1. Configure .env
-2. 
-Update these lines:
+Update `.env` with:
 
+```env
 APP_URL=http://localhost/laravel-gallery/public
-
 VITE_API_BASE_URL=http://localhost/laravel-gallery/public
-
 VITE_STORAGE_URL=http://localhost/laravel-gallery/public/storage
-
-DB_CONNECTION=mysql
-
 DB_DATABASE=your_db
-
 DB_USERNAME=root
-
 DB_PASSWORD=
-
 QUEUE_CONNECTION=rabbitmq
-
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
 MAIL_MAILER=smtp
-
 MAIL_HOST=sandbox.smtp.mailtrap.io
-
 MAIL_PORT=2525
-
 MAIL_USERNAME=your_mailtrap_user
-
 MAIL_PASSWORD=your_mailtrap_pass
-
 MAIL_FROM_ADDRESS="hello@example.com"
-
 MAIL_FROM_NAME="Gallery App"
-
 PUSHER_APP_ID=your_app_id
-
 PUSHER_APP_KEY=your_key
-
 PUSHER_APP_SECRET=your_secret
-
 PUSHER_APP_CLUSTER=mt1
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+```
 
-2. Run Migrations
+### 🗃️ Migrations & Storage
 
+```bash
 php artisan migrate
-
 php artisan storage:link
+```
 
-3. Start Laravel WebSocket Server
+### 🧵 Start Laravel WebSocket & Queue Workers
 
+```bash
 php artisan websockets:serve
-
-💌 Queue Worker (RabbitMQ)
-
-Make sure RabbitMQ is installed and running locally.
-
-Start queue worker:
-
 php artisan queue:work
+```
 
-🖼 Frontend Setup (React with Vite)
+---
 
+### 🖼 Frontend Setup (React with Vite)
+
+```bash
 npm install
-
 npm run dev
+```
 
-This will launch the React app at:
+Browse: [http://localhost:5173/](http://localhost:5173/)
 
-arduino
+---
 
-http://localhost:5173/
+## 📦 API Endpoints
 
-Make sure API calls work via VITE_API_BASE_URL.
+| Method | Endpoint            | Description      |
+|--------|---------------------|------------------|
+| GET    | /api/gallery        | List all images  |
+| POST   | /api/gallery        | Upload image     |
+| DELETE | /api/gallery/{id}   | Delete image     |
 
-📦 API Endpoints
+---
 
-Method	Endpoint	Description
+## 🔁 Real-Time Updates
 
-GET	/api/gallery	List all images
+Live image updates via WebSockets using Laravel Echo + Pusher-compatible server.
 
-POST	/api/gallery	Upload image
+---
 
-DELETE	/api/gallery/{id}	Delete image
+## 🧠 Redis Caching
 
-🔁 Real-Time Updates
+- Images are cached with `Cache::remember()` in controller
+- When image is added or deleted, cache is invalidated with `Cache::forget()`
 
-All connected clients see new images or deletions live via Echo and laravel-websockets.
+---
 
-Uses Pusher-compatible Laravel broadcasting with WebSockets driver.
+## ✉️ Email Notifications
 
-✉️ Email Notifications
+Emails are queued and sent when:
 
-Emails are queued and sent on:
+- Image is uploaded
+- Image is deleted
 
-Image upload
+---
 
-Image deletion
+## 📁 Folder Structure
 
-Customize email view in:
-
-resources/views/emails/image-action.blade.php
-
-✅ Usage
-Upload image
-
-Image appears in list immediately
-
-All other users see image live
-
-Email sent asynchronously
-
-Deleting an image triggers real-time update + mail
-
-🧹 Troubleshooting
-
-Image not visible?
-
-Ensure php artisan storage:link is run and the file is inside /public/storage/images.
-
-Queue not sending mails?
-
-Make sure:
-
-php artisan queue:work
-
-WebSocket not working?
-
-Check:
-
-php artisan websockets:serve
-
-.env has correct PUSHER_* keys
-
-config/broadcasting.php has verify => false for dev
-
-📂 Folder Structure
-swift
-
+```
 /app
     /Http/Controllers/GalleryController.php
     /Events/ImageUpdated.php
@@ -207,11 +149,11 @@ swift
     /views/emails/image-action.blade.php
 /public
     /storage/images/
-    
-👨‍💻 Author
+```
 
-Aleksander Keremidarov
+---
 
-GitHub: sashokrist
+## 👨‍💻 Author
 
-
+**Aleksander Keremidarov**  
+GitHub: [@sashokrist](https://github.com/sashokrist)
