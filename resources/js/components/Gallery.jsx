@@ -60,7 +60,7 @@ export default function Gallery() {
 
     return (
         <div style={{ padding: '2rem' }}>
-            <h2>Image Gallery</h2>
+            <h2>Image Gallery upload</h2>
             <input type="file" onChange={(e) => setImage(e.target.files[0])} />
             <button onClick={upload} disabled={loading}>
                 {loading ? 'Uploading...' : 'Upload'}
