@@ -21,7 +21,7 @@ class ImageActionMail extends Mailable
 
     public function build()
     {
-        return $this->subject("Image {$this->action}")
-                    ->view('emails.image-action');
+        return $this->markdown('emails.image-action')
+                    ->subject("Image {$this->action}");
     }
 }
